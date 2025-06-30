@@ -1,0 +1,1 @@
+Hello there, this is a commenting system project i wanna develope with pure javascript. for the start i dont wanna use any database, framework or unnesseccary libraries for my knowlendge improvement. thanks for ur attention :>
