@@ -25,7 +25,35 @@ const server = http.createServer((req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     return res.end();
-    }
+  }
+
+  // Serve index.html at root (/)
+  if (req.url === '/' && req.method === 'GET') {
+    fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
+      if (err) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+      } else {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(data);
+      }
+    });
+    return;
+  }
+
+  // Serve style.css
+  if (req.url === '/style.css' && req.method === 'GET') {
+    fs.readFile(path.join(__dirname, 'style.css'), (err, data) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Not Found');
+      } else {
+        res.writeHead(200, { 'Content-Type': 'text/css' });
+        res.end(data);
+      }
+    });
+    return;
+  }
 
 
   if (req.url === '/comments') {
