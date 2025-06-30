@@ -3,5 +3,20 @@
     "id": 1,
     "text": "hihihi",
     "createdAt": "2025-06-30T13:05:28.462Z"
+  },
+  {
+    "id": 2,
+    "text": "hi mom\n",
+    "createdAt": "2025-06-30T20:59:55.859Z"
+  },
+  {
+    "id": 3,
+    "text": "tell me something about urself",
+    "createdAt": "2025-06-30T21:04:15.477Z"
+  },
+  {
+    "id": 4,
+    "text": "how much does it take? how long does it take?",
+    "createdAt": "2025-06-30T21:10:06.629Z"
   }
 ]
