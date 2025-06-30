@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>سیستم کامنت</title>
+</head>
+<body>
+  <h1>کامنت‌ها</h1>
+
+  <form id="commentForm">
+    <textarea id="commentText" placeholder="نظر خود را بنویسید..." required></textarea><br>
+    <button type="submit">ارسال</button>
+  </form>
+
+  <h2>لیست کامنت‌ها:</h2>
+  <ul id="commentsList"></ul>
+
+  <script>
+    const form = document.getElementById('commentForm');
+    const commentsList = document.getElementById('commentsList');
+
+    // تابع: گرفتن همه کامنت‌ها
+    async function loadComments() {
+      const res = await fetch('http://localhost:3000/comments');
+      const data = await res.json();
+
+      commentsList.innerHTML = '';
+      data.forEach(comment => {
+        const li = document.createElement('li');
+        li.textContent = `${comment.text} (ثبت شده در: ${comment.createdAt})`;
+        commentsList.appendChild(li);
+      });
+    }
+
+    // تابع: ارسال کامنت جدید
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = document.getElementById('commentText').value;
+
+      const res = await fetch('http://localhost:3000/comments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text })
+      });
+
+      const data = await res.json();
+      console.log('ارسال شد:', data);
+
+      document.getElementById('commentText').value = '';
+      loadComments();
+    });
+
+    // بارگذاری اولیه کامنت‌ها
+    loadComments();
+  </script>
+</body>
+</html>
