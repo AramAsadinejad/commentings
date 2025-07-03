@@ -1,19 +1,35 @@
 <!DOCTYPE html>
 <html lang="fa">
+
 <head>
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="./style.css">
   <title>سیستم کامنت</title>
 </head>
 <body>
-  <h1>کامنت‌ها</h1>
+  <div class="container">
+    <div class="header">
+      <h1>کامنت‌ها</h1>
+      <div class="subtitle">نظرات و دیدگاه‌های شما</div>
+    </div>
 
-  <form id="commentForm">
-    <textarea id="commentText" placeholder="نظر خود را بنویسید..." required></textarea><br>
-    <button type="submit">ارسال</button>
-  </form>
+    <div class="form-section">
+      <form id="commentForm">
+        <textarea id="commentText" placeholder="نظر خود را بنویسید..." required></textarea>
+        <button type="submit">ارسال نظر</button>
+      </form>
+    </div>
 
-  <h2>لیست کامنت‌ها:</h2>
-  <ul id="commentsList"></ul>
+    <div class="comments-section">
+      <h2>لیست کامنت‌ها:</h2>
+      <ul id="commentsList">
+        <div class="empty-state">
+          <div class="empty-icon">💬</div>
+          <p>هنوز نظری ثبت نشده است. اولین نظر را شما بنویسید!</p>
+        </div>
+      </ul>
+    </div>
+  </div>
 
   <script>
     const form = document.getElementById('commentForm');
@@ -24,10 +40,37 @@
       const res = await fetch('http://localhost:3000/comments');
       const data = await res.json();
 
+      if (data.length === 0) {
+        commentsList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">💬</div>
+            <p>هنوز نظری ثبت نشده است. اولین نظر را شما بنویسید!</p>
+          </div>
+        `;
+        return;
+      }
+
       commentsList.innerHTML = '';
       data.forEach(comment => {
         const li = document.createElement('li');
-        li.textContent = `${comment.text} (ثبت شده در: ${comment.createdAt})`;
+        li.className = 'comment-item';
+        
+        const date = new Date(comment.createdAt);
+        const formattedDate = new Intl.DateTimeFormat('fa-IR', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).format(date);
+        
+        li.innerHTML = `
+          <div class="comment-text">${comment.text}</div>
+          <div class="comment-meta">
+            <span class="comment-time">${formattedDate}</span>
+          </div>
+        `;
+        
         commentsList.appendChild(li);
       });
     }
@@ -56,4 +99,5 @@
     loadComments();
   </script>
 </body>
+
 </html>
