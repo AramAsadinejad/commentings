@@ -1,21 +1,21 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const Comment = require('./models/comment')
+const COMMENTS_FILE = path.join(__dirname, '..', 'database', 'comments.json');
 
-const COMMENTS_FILE = path.join(__dirname, 'database', 'comments.json');
+// function readComments() {
+//   try {
+//     const data = fs.readFileSync(COMMENTS_FILE, 'utf8');
+//     return JSON.parse(data);
+//   } catch (err) {
+//     return [];
+//   }
+// }
 
-function readComments() {
-  try {
-    const data = fs.readFileSync(COMMENTS_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (err) {
-    return [];
-  }
-}
-
-function writeComments(comments) {
-  fs.writeFileSync(COMMENTS_FILE, JSON.stringify(comments, null, 2));
-}
+// function writeComments(comments) {
+//   fs.writeFileSync(COMMENTS_FILE, JSON.stringify(comments, null, 2));
+// }
 
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -58,28 +58,36 @@ const server = http.createServer((req, res) => {
 
   if (req.url === '/comments') {
     if (req.method === 'GET') {
-      const comments = readComments();
+      const comments = Comment.all();
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(comments));
     } else if (req.method === 'POST') {
       let body = '';
       req.on('data', chunk => {
+        console.log('chunk:', chunk.toString());
         body += chunk.toString();
       });
+      console.log(1);
       req.on('end', () => {
         try {
+          console.log('body: ',body);
           const comment = JSON.parse(body);
-          const comments = readComments();
-          const newComment = {
-            id: comments.length ? comments[comments.length - 1].id + 1 : 1,
-            text: comment.text,
-            createdAt: new Date().toISOString()
-          };
-          comments.push(newComment);
-          writeComments(comments);
+          // const comments = readComments();
+          // const newComment = {
+          //   id: comments.length ? comments[comments.length - 1].id + 1 : 1,
+          //   text: comment.text,
+          //   createdAt: new Date().toISOString()
+          // };
+          // comments.push(newComment);
+          // writeComments(comments);
+          const newC = new Comment(comment);
+          console.log('comment instance: ',newC);
+          const newComment = newC.save();
+          console.log('newComment:', newComment);
           res.writeHead(201, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify(newComment));
         } catch (err) {
+          console.error('Error in save:', err.message);
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: 'فرمت داده نادرست است' }));
         }
