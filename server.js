@@ -1,9 +1,18 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const Comment = require('./models/comment')
-const COMMENTS_FILE = path.join(__dirname, '..', 'database', 'comments.json');
+// const http = require('http');
+// const fs = require('fs');
+// const path = require('path');
+// const Comment = require('./models/comment');
 
+
+
+import http from 'http';
+import fs from'fs';
+import path from 'path';
+import Comment from './models/comment.js';
+import { __dirname,__filename } from './config.js';
+import User from './models/user.js';
+
+const COMMENTS_FILE = path.join(__dirname, '..', 'database', 'comments.json');
 // function readComments() {
 //   try {
 //     const data = fs.readFileSync(COMMENTS_FILE, 'utf8');
@@ -66,26 +75,18 @@ const server = http.createServer((req, res) => {
       req.on('data', chunk => {
         console.log('chunk:', chunk.toString());
         body += chunk.toString();
-      });
-      console.log(1);
+      }); // in bakhsh marboot be gereftane vroodi hastesh
       req.on('end', () => {
         try {
           console.log('body: ',body);
-          const comment = JSON.parse(body);
-          // const comments = readComments();
-          // const newComment = {
-          //   id: comments.length ? comments[comments.length - 1].id + 1 : 1,
-          //   text: comment.text,
-          //   createdAt: new Date().toISOString()
-          // };
-          // comments.push(newComment);
-          // writeComments(comments);
-          const newC = new Comment(comment);
-          console.log('comment instance: ',newC);
-          const newComment = newC.save();
+          const { text,username } = JSON.parse(body);
+          const user = User.get({"username":username});
+          console.log(user);
+          const newC = new Comment({text:text, userId:user.id}); // ye obj az text to misaze
+          const newComment = newC.save();  // oon obj ro to db save mikone
           console.log('newComment:', newComment);
           res.writeHead(201, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(newComment));
+          res.end(JSON.stringify(newComment));  //inam be onvane response bar migardoone
         } catch (err) {
           console.error('Error in save:', err.message);
           res.writeHead(400, { 'Content-Type': 'application/json' });

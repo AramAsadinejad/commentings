@@ -16,6 +16,7 @@
     <div class="form-section">
       <form id="commentForm">
         <textarea id="commentText" placeholder="نظر خود را بنویسید..." required></textarea>
+        <textarea id="username" placeholder="نام کاربری خود را وارد کنید..."></textarea>
         <button type="submit">ارسال نظر</button>
       </form>
     </div>
@@ -66,6 +67,7 @@
         
         li.innerHTML = `
           <div class="comment-text">${comment.text}</div>
+          <div class="comment-date">${comment.userId}</div>
           <div class="comment-meta">
             <span class="comment-time">${formattedDate}</span>
           </div>
@@ -79,19 +81,21 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const text = document.getElementById('commentText').value;
+      const username = document.getElementById('username').value;
 
       const res = await fetch('http://localhost:3000/comments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ text })
+        body: JSON.stringify({ text,username })
       });
 
       const data = await res.json();
       console.log('ارسال شد:', data);
 
       document.getElementById('commentText').value = '';
+      document.getElementById('username').value = '';
       loadComments();
     });
 

@@ -1,13 +1,16 @@
-const fs = require('fs');
-const path = require('path');
+// const fs = require('fs');
+// const path = require('path');
+import path from 'path';
+import fs from 'fs';
+import { __dirname } from '../config.js';
 
-const COMMENTS_FILE = path.join(__dirname, '..', 'database', 'comments.json');
+const COMMENTS_FILE = path.join(__dirname, 'database', 'comments.json');
 
 class Comment {
-    constructor({id,text,username=null,productId=null,createdAt}){
+    constructor({id,text,userId=null,productId=null,createdAt}){
         this.id = id;
         this.text = text;
-        this.username = username;
+        this.userId = userId;
         this.productId = productId;
         this.createdAt = createdAt || new Date().toISOString();
     }
@@ -15,9 +18,8 @@ class Comment {
     static all() {
         try {
             const data = fs.readFileSync(COMMENTS_FILE, 'utf8');
-            console.log('data:',data);
             const json_data = JSON.parse(data);
-            console.log(json_data);
+            // console.log(json_data);
             return json_data.map(obj => new Comment(obj));
           } catch (err) {
             return [];
@@ -38,4 +40,4 @@ class Comment {
     }
 }
 
-module.exports = Comment;
+export default Comment;
