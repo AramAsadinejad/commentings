@@ -16,7 +16,8 @@
     <div class="form-section">
       <form id="commentForm">
         <textarea id="commentText" placeholder="نظر خود را بنویسید..." required></textarea>
-        <textarea id="username" placeholder="نام کاربری خود را وارد کنید..."></textarea>
+        <textarea id="username" placeholder="نام کاربری خود را وارد کنید..." required></textarea>
+        <textarea id="password" placeholder="رمز عبور خود را وارد کنید..." required></textarea>
         <button type="submit">ارسال نظر</button>
       </form>
     </div>
@@ -79,16 +80,18 @@
 
     // تابع: ارسال کامنت جدید
     form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+      try {
+        e.preventDefault();
       const text = document.getElementById('commentText').value;
       const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
       const res = await fetch('http://localhost:3000/comments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ text,username })
+        body: JSON.stringify({ text,username,password })
       });
 
       const data = await res.json();
@@ -96,7 +99,12 @@
 
       document.getElementById('commentText').value = '';
       document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
       loadComments();
+      } catch(err){
+        alert(err.message);
+      }
+      
     });
 
     // بارگذاری اولیه کامنت‌ها

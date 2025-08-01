@@ -29,26 +29,26 @@ class User {
     }
 
     validate() {
-        const users = User.all()
-        return isUsernameUnique(this.username,users) && isPasswordStrong(this.password)
+        const users = User.all();
+        console.log(isUsernameUnique(this.username,users) && isPasswordStrong(this.password));
+        return isUsernameUnique(this.username,users) && isPasswordStrong(this.password);
     }
 
     save() {
-        if (this.validate) {
-            const allUsers = User.all()
+        if (this.validate()) {
+            const allUsers = User.all();
             this.id = allUsers.length ? allUsers[allUsers.length - 1].id + 1 : 1;
             allUsers.push(this);
             User.saveAll(allUsers);
             return this;
 
         } else {
-            return "not a valid user";
+            return null;
         }
     }
 
     static get(criteria) {
         const users = User.all();
-        console.log(users);
         for (let user of users){
             let flag = true;
             for (let key in criteria){
@@ -64,7 +64,7 @@ class User {
             }
         }
 
-        return undefined;
+        return null;
 
         // return users.find(user =>
         //     Object.entries(criteria).every(([key, value]) => user[key] === value)
