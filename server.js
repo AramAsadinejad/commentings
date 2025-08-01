@@ -4,11 +4,16 @@ import path from 'path';
 import Comment from './models/comment.js';
 import User from './models/user.js';
 import { __dirname } from './config.js';
+import { sessions } from './config.js';
+import { generateSessionId } from './utils.js';
 
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  const cookies = parseCookies(req.headers.cookie);
+  const sessionUserId = sessions.get(cookies.sessionId);
 
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
@@ -52,6 +57,10 @@ const server = http.createServer((req, res) => {
     }
 
     if (req.method === 'POST') {
+      if (!sessionUserId) {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error: 'ابتدا وارد شوید' }));
+      }
       let body = '';
 
       req.on('data', chunk => {
@@ -95,6 +104,58 @@ const server = http.createServer((req, res) => {
     // متد غیرمجاز
     res.writeHead(405, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ error: 'متد مجاز نیست' }));
+  } else if( req.url ==='/auth/login' && req.method === 'POST') {
+
+    let body ='';
+    req.on('data', (chunk) => {
+      body += chunk.toString();
+    });
+    req.on('end', () =>{
+      try {
+        const { username, password } = JSON.parse(body);
+        const user = User.get({ username, password });
+
+        if (!user) {
+          res.writeHead(401, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ message: 'نام کاربری یا رمز عبور نادرست است' }));
+        }
+
+        const sessionId = generateSessionId();
+        sessions.set(sessionId, user.id);
+        res.writeHead(200, {
+                'Content-Type': 'application/json',
+                'Set-Cookie': `sessionId=${sessionId}; HttpOnly`,
+              });
+        return res.end(JSON.stringify({ message: 'ورود موفقیت‌آمیز بود', user }));
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error: 'فرمت داده نادرست است' }));
+      }
+    });
+
+    return;
+
+     
+  } else if (req.url === '/auth/signup' && req.method === 'POST') {
+
+    let body = '';
+    req.on('date',chunk =>{
+      body += chunk;
+    });
+    req.on('end',() => {
+      const {username, password} = body;
+      if (User.get({username})) {
+        res.writeHead(409, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error: 'نام کاربری قبلاً ثبت شده' }));
+      }
+
+      const user = new User({username, password}).save()
+
+      res.writeHead(201, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ message: 'ثبت‌نام با موفقیت انجام شد', user }));
+
+    })
+    
   }
 
   // آدرس اشتباه
