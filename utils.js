@@ -1,4 +1,14 @@
-import { sessions } from "./config.js";
+function parseBodyRequest(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', () => {
+      resolve(JSON.parse(body));
+    });
+  });
+}
 
 export function isUsernameUnique(username, users){
     return !users.some(user => user.username === username);
